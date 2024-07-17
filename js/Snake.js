@@ -31,7 +31,54 @@ class Snake {
         this.clearScreen();
         // handle click events on the keyboard
         this.controlFlag();
+        this.controlDirection();
+        this.handleCollideScreen();
+        this.draw();
+    }
 
+    handleCollideScreen() {
+        switch (this._flag) {
+            case "right":
+                this.handleCollideRightScreen();
+                break;
+            case "left":
+                this.handleCollideScreenLeft();
+                break;
+            case "up":
+                this.handleCollideTopScreen();
+                break;
+            default:
+                this.handleCollideBottomScreen();
+                break;
+        }
+
+    }
+
+    handleCollideBottomScreen() {
+        if (this._y + this._size >= this._canvas.height) {
+            this._y = 0;
+        }
+    }
+
+    handleCollideTopScreen() {
+        if (this._y <= 0) {
+            this._y = this._canvas.height - this._size;
+        }
+    }
+
+    handleCollideScreenLeft() {
+        if (this._x <= 0) {
+            this._x = this._canvas.width - this._size;
+        }
+    }
+
+    handleCollideRightScreen() {
+        if (this._x + this._size >= this._canvas.width) {
+            this._x = 0;
+        }
+    }
+
+    controlDirection() {
         switch (this._flag) {
             case "left":
                 this.moveLeft();
@@ -47,14 +94,11 @@ class Snake {
                 break;
 
         }
-        this.draw();
     }
-
 
     controlFlag() {
         window.addEventListener("keydown", (evt) => {
             const keyNumber = evt.keyCode;
-            console.log(keyNumber)
             if (keyNumber === 40) {
                 this._flag = "down";
             } else if (keyNumber === 39) {
@@ -87,7 +131,37 @@ class Snake {
         this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
     }
 
-    eat(food) {
+    eat(food, score) {
+        switch (this._flag) {
+            case "right":
+                // xu ly va cham ben trai moi
+                if (this._x + this._size >= food._x - food._radius
+                    && this._y <= food._y && food._y <= this._y + this._size) {
+                    food.randomPosition();
+                    score.increment();
+                }
+                break;
+            case "left":
+                if (this._x <= food._x + food._radius
+                    && this._y <= food._y && food._y <= this._y + this._size) {
+                    food.randomPosition();
+                    score.increment();
+                }
+                break;
+            case "up":
+                if (this._y <= food._y + food._radius
+                    && this._x <= food._x && food._x <= this._x + this._size) {
+                    food.randomPosition();
+                    score.increment();
+                }
+                break;
+            default:
+                if (this._y + this._size >= food._y - food._radius
+                    && this._x <= food._x && food._x <= this._x + this._size) {
+                    food.randomPosition();
+                    score.increment();
+                }
+        }
 
     }
 }
